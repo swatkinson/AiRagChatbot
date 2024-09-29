@@ -2,14 +2,14 @@ using System.Text;
 
 namespace AiRagChatbot.OllamaClient;
 
-public sealed class OllamaClient
+public static class OllamaClient
 {
     private static readonly HttpClient Client = new HttpClient();
 
-    public static async Task<string?> CallOllamaModel(ChatRequest request)
+    public static async Task<ChatResponse?> CallOllamaModel(ChatRequest request)
     {
         // Ollama API endpoint
-        const string url = "http://localhost:11434/api/generate";
+        const string url = "http://localhost:11434/api/chat";
         
         // Serialize the request body to JSON
         var json = System.Text.Json.JsonSerializer.Serialize(request);
@@ -28,12 +28,19 @@ public sealed class OllamaClient
             
             var result = System.Text.Json.JsonSerializer.Deserialize<ChatResponse>(resultJson);
             
-            return result?.Response;
+            return result;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error calling Ollama model: {ex.Message}");
             return null;
         }
+    }
+
+    public static void PrintMessage(Message message)
+    {
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine(string.IsNullOrEmpty(message.Content) ? "" : message.Content);
+        Console.ForegroundColor = ConsoleColor.White;
     }
 }
