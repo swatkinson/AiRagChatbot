@@ -12,5 +12,14 @@ public sealed class ChatRequest
     
     [JsonPropertyName("stream")]
     public bool Stream { get; set; }
+    
+    [JsonPropertyName("options")]
+    public required Options Options { get; set; }
+}
+
+public sealed class Options
+{
+    [JsonPropertyName("temperature")]
+    public double Temperature { get; set; }
 }
 
