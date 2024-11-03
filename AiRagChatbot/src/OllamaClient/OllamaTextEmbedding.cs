@@ -47,11 +47,9 @@ internal class OllamaTextEmbedding : ITextEmbeddingGenerator
 
             return embedding;
         }
-        else
-        {
-            Console.WriteLine("Error: " + response.StatusCode);
-            return null;
-        }
+
+        Console.WriteLine("Error: " + response.StatusCode);
+        return null;
     }
 
     public IReadOnlyList<string> GetTokens(string text)

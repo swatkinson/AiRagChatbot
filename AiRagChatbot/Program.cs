@@ -1,9 +1,6 @@
 ﻿using AiRagChatbot;
 using AiRagChatbot.OllamaClient;
 
-
-
-//Console.WriteLine(websites.Result.First().Value);
 var ollamaEndpoint = "http://127.0.0.1:11434";
 var ollamaClient = new HttpClient
 {
@@ -38,38 +35,45 @@ var request = new ChatRequest
 
 OllamaClient.PrintMessage(request.Messages.First(m => m.Role == "assistant").Content);
 
-var websites = WebsiteCrawler.WebsiteCrawler.Crawl("https://www.resqwest.com", 1).Result;
+// var websites = WebsiteCrawler.WebsiteCrawler.Crawl("https://www.resqwest.com", 1).Result;
 
 // Load websites into memory
 var kernelMemory = KernelMemory.GetMemoryKernel(ollamaClient, ollamaModelName);
 
-foreach (var website in websites)
-{
-    await kernelMemory.ImportWebPageAsync(website.Key);
-}
-
+// foreach (var website in websites)
+// {
+//     await kernelMemory.ImportWebPageAsync(website.Key);
+// }
 
 
 while (true)
 {
-    Console.Write("> ");
-    var question = Console.ReadLine();
-
-    var answer = await kernelMemory.AskAsync(question);
-
-    OllamaClient.PrintMessage(answer.Result);
-}
-
-
-/*
-while (true)
-{
+    var llamaQuestion = "";
+    
     // Ask user for AI prompt
     Console.Write("> ");
-    var userInput = Console.ReadLine() ?? "";
+    var userQuestion = Console.ReadLine() ?? "";
+    
+    var ragAnswer = await kernelMemory.AskAsync(userQuestion);
+
+    Console.WriteLine($"CONTEXT: {ragAnswer.ToJson()}");
+
+    if (ragAnswer.NoResult)
+    {
+        llamaQuestion = $"SYSTEM: There is no information available to answer any questions, do not answer any questions. " +
+                        $"Instead, respond with \"I'm sorry, I do not have the relevant information to answer that question accurately. Is there anything else I can assist you with?\"." +
+                        $"If the user prompt is not a question, you can respond to it" +
+                        $"USER PROMPT: \"{userQuestion}\"";
+    }
+    else
+    {
+        llamaQuestion = $"Respond to the USER PROMPT using the provided CONTEXT." +
+                        $"CONTEXT: \"{ragAnswer.Result}\"\n " +
+                        $"USER PROMPT: \"{userQuestion}\"";
+    }
     
     // Add user prompt to messages
-    request.Messages.Add(new Message { Content = userInput, Role = "user" });
+    request.Messages.Add(new Message { Content = llamaQuestion, Role = "user" });
             
     // Call AI with updated request
     var response = await OllamaClient.CallOllamaModel(request);
@@ -77,9 +81,8 @@ while (true)
     // Add AI response to messages
     request.Messages.Add(response!.Message);
     
-    OllamaClient.PrintMessage(response.Message);
+    OllamaClient.PrintMessage(response.Message.Content);
 
     //If user says "bye", end the chat.
-    if (userInput.Contains("bye")) break;
+    if (userQuestion.Contains("bye")) break;
 }
-*/

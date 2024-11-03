@@ -14,7 +14,7 @@ internal static class KernelMemory
         memoryBuilder.WithCustomPromptProvider(new OllamaPromptProvider());
         memoryBuilder.WithCustomEmbeddingGenerator(new OllamaTextEmbedding())
             .WithCustomTextGenerator(new OllamaClient.OllamaClient.OllamaTextGeneration(ollamaClient, modelName))
-            .WithSimpleVectorDb(new SimpleVectorDbConfig { Directory = "VectorDirectory", StorageType = FileSystemTypes.Volatile })
+            .WithSimpleVectorDb(new SimpleVectorDbConfig { Directory = "VectorDirectory", StorageType = FileSystemTypes.Disk })
             .Build<MemoryServerless>();
 
         var memory = memoryBuilder.Build<MemoryServerless>();
