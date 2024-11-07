@@ -33,22 +33,19 @@ var request = new ChatRequest
     Options = new Options { Temperature = 0.1 }
 };
 
-OllamaClient.PrintMessage(request.Messages.First(m => m.Role == "assistant").Content);
+Console.Write("Loading context ...    ");
 
-// var websites = WebsiteCrawler.WebsiteCrawler.Crawl("https://www.resqwest.com", 1).Result;
-
-// Load websites into memory
 var kernelMemory = KernelMemory.GetMemoryKernel(ollamaClient, ollamaModelName);
 
-// foreach (var website in websites)
-// {
-//     await kernelMemory.ImportWebPageAsync(website.Key);
-// }
+await kernelMemory.ImportDocumentAsync("C:\\Users\\Spenc\\src\\AiRagChatbot\\AiRagChatbot\\src\\TestInformation\\Resqwest info.txt");
 
+Console.WriteLine("Done!");
+
+OllamaClient.PrintMessage(request.Messages.First(m => m.Role == "assistant").Content);
 
 while (true)
 {
-    var llamaQuestion = "";
+    string llamaQuestion;
     
     // Ask user for AI prompt
     Console.Write("> ");
@@ -56,7 +53,8 @@ while (true)
     
     var ragAnswer = await kernelMemory.AskAsync(userQuestion);
 
-    Console.WriteLine($"CONTEXT: {ragAnswer.ToJson()}");
+    Console.WriteLine($"INFO FOUND: {!ragAnswer.NoResult}\n" +
+                      $"CONTEXT: {ragAnswer}");
 
     if (ragAnswer.NoResult)
     {
